@@ -46,27 +46,33 @@ public class Main {
         return count;
     }
 
-    public static synchronized void updateFrequency(int count) {
-        sizeToFreq.put(count, sizeToFreq.getOrDefault(count, 0) + 1);
+    public static void updateFrequency(int count) {
+        synchronized (sizeToFreq) {
+            sizeToFreq.put(count, sizeToFreq.getOrDefault(count, 0) + 1);
+        }
     }
 
     public static void printResults() {
         int mostFrequentCount = -1;
         int mostFrequentSize = 0;
 
-        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
-            if (entry.getValue() > mostFrequentCount) {
-                mostFrequentCount = entry.getValue();
-                mostFrequentSize = entry.getKey();
+        synchronized (sizeToFreq) {
+            for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+                if (entry.getValue() > mostFrequentCount) {
+                    mostFrequentCount = entry.getValue();
+                    mostFrequentSize = entry.getKey();
+                }
             }
         }
 
         System.out.println("Самое частое количество повторений " + mostFrequentSize + " (встретилось " + mostFrequentCount + " раз)");
         System.out.println("Другие размеры:");
 
-        for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
-            if (entry.getKey() != mostFrequentSize) {
-                System.out.println("- " + entry.getKey() + " (" + entry.getValue() + " раз)");
+        synchronized (sizeToFreq) {
+            for (Map.Entry<Integer, Integer> entry : sizeToFreq.entrySet()) {
+                if (entry.getKey() != mostFrequentSize) {
+                    System.out.println("- " + entry.getKey() + " (" + entry.getValue() + " раз)");
+                }
             }
         }
     }
